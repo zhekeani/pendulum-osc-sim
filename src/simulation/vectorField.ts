@@ -19,6 +19,7 @@ export const updateVectorField = (
 
     clear(gl, arrowField);
 
+    const isLarge = isLargeCanvas(canvas);
     const aspectRatio = canvas.clientWidth / canvas.clientHeight;
     const vInterval = calculateVelocityInterval(canvas);
 
@@ -31,6 +32,8 @@ export const updateVectorField = (
     );
 
     const { columns, rows } = calculateRowsAndColumns(canvas);
+
+    const arrowBaseSize = isLarge ? 0.1 : 0.2;
 
     for (let row = 0; row < rows; row++) {
       for (let column = 0; column < columns; column++) {
@@ -54,7 +57,12 @@ export const updateVectorField = (
           matrix
         );
 
-        blitArrow(gl, arrowField, false, 0.2 + 5000 * magnitude * aspectRatio);
+        blitArrow(
+          gl,
+          arrowField,
+          false,
+          arrowBaseSize + 5000 * magnitude * aspectRatio
+        );
       }
     }
   }
@@ -110,8 +118,9 @@ function lerp(start: number, end: number, t: number): number {
 }
 
 const calculateRowsAndColumns = (canvas: HTMLCanvasElement) => {
-  const count = 390;
+  const isLarge = isLargeCanvas(canvas);
   const aspectRatio = canvas.clientWidth / canvas.clientHeight;
+  const count = isLarge ? 600 : 390;
 
   let columns = Math.floor(Math.sqrt(count * aspectRatio));
   let rows = Math.floor(count / columns);
