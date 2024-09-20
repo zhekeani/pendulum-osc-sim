@@ -15,7 +15,7 @@ import { config } from "./config";
 import { InputManager } from "./input/inputManager";
 import { createPendulumVisualization } from "./pendulum-visualization/pendulum";
 import { step } from "./step";
-import { calcDeltaTime } from "./utils";
+import { calcDeltaTime, isLargeCanvas } from "./utils";
 
 export const update = (
   gl: WebGL2RenderingContext,
@@ -187,9 +187,12 @@ export const updateOscillationStates = (
 };
 
 export const calculateVelocityInterval = (canvas: HTMLCanvasElement) => {
-  const aspectRatio = canvas.clientWidth / canvas.clientHeight;
-  const yIntervalOri = 3.2;
-  const yInterval = yIntervalOri / aspectRatio;
+  const isLarge = isLargeCanvas(canvas);
 
-  return yInterval;
+  let aspectRatio = canvas.clientWidth / canvas.clientHeight;
+  if (isLarge) aspectRatio / 2;
+  const vIntervalOri = 3.2;
+  const vInterval = vIntervalOri / aspectRatio;
+
+  return vInterval;
 };
