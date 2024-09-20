@@ -176,11 +176,13 @@ export const updateOscillationStates = (
   const { oscillationState } = frameBufferState;
 
   if (oscillationState) {
-    const yInterval = calculateVelocityInterval(canvas);
+    const vInterval = calculateVelocityInterval(canvas);
+    const isLarge = isLargeCanvas(canvas);
 
     stateProgram.bind();
 
-    gl.uniform1f(stateProgram.uniforms.maxY, yInterval);
+    gl.uniform1f(stateProgram.uniforms.maxY, vInterval);
+    gl.uniform1i(stateProgram.uniforms.isLarge, isLarge ? 1 : 0);
     blit(gl, oscillationState.write);
     oscillationState.swap();
   }
