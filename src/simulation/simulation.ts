@@ -192,7 +192,7 @@ export const calculateVelocityInterval = (canvas: HTMLCanvasElement) => {
   const isLarge = isLargeCanvas(canvas);
 
   let aspectRatio = canvas.clientWidth / canvas.clientHeight;
-  if (isLarge) aspectRatio / 2;
+  if (isLarge) aspectRatio /= 2;
   const vIntervalOri = 3.2;
   const vInterval = vIntervalOri / aspectRatio;
 
