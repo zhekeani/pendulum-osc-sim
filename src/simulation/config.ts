@@ -1,0 +1,9 @@
+export let config = {
+  SIM_RESOLUTION: 128,
+  GRAVITY: 9.81,
+  PENDULUM_LENGTH: 3.0,
+  AIR_RESISTANCE_COEF: 0.2,
+  LINE_TRACKING: true,
+  VECTOR_FIELD_OPACITY: 0.8,
+  PAUSED: true,
+};
