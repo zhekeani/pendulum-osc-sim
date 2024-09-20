@@ -20,7 +20,6 @@ export const updateVectorField = (
     clear(gl, arrowField);
 
     const aspectRatio = canvas.clientWidth / canvas.clientHeight;
-    const isLarge = isLargeCanvas(canvas);
     const vInterval = calculateYInterval(canvas);
 
     arrowFieldProgram.bind();
@@ -42,6 +41,7 @@ export const updateVectorField = (
         mat3.translate(matrix, matrix, [x * aspectRatio, y]);
 
         const { rotation, magnitude } = calculateRotationAndMagnitude(
+          canvas,
           vInterval,
           x,
           y
@@ -61,16 +61,26 @@ export const updateVectorField = (
 };
 
 const calculateRotationAndMagnitude = (
+  canvas: HTMLCanvasElement,
   vInterval: number,
   x: number,
   y: number
 ) => {
+  const isLarge = isLargeCanvas(canvas);
+
   const adJustedX = (x + 1) / 2;
   const adjustedY = (y + 1) / 2;
 
   const { GRAVITY, PENDULUM_LENGTH, AIR_RESISTANCE_COEF } = config;
 
-  const angle = lerp(-Math.PI, Math.PI, adJustedX);
+  let angle: number;
+
+  if (!isLarge) {
+    angle = lerp(-Math.PI, Math.PI, adJustedX);
+  } else {
+    angle = lerp(-Math.PI, Math.PI * 3, adJustedX);
+  }
+
   const velocity = lerp(-vInterval, vInterval, adjustedY);
   const acceleration =
     -AIR_RESISTANCE_COEF * velocity -
