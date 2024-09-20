@@ -1,5 +1,6 @@
 import { mat3, vec2 } from "gl-matrix";
 import { calculateVelocityInterval } from "../simulation";
+import { isLargeCanvas } from "../utils";
 
 const initialState = {
   angle: (Math.PI * 5) / 6,
@@ -34,6 +35,7 @@ export class InputManager {
 
     // Transform the point from (-π, v) to (π, -v) to normalized space
     const textureCoord = transformStatesToTexture(
+      this.canvas,
       [angle, velocity],
       vInterval,
       aspectRatio
@@ -90,7 +92,11 @@ export class InputManager {
     const posY = event.offsetY / this.canvas.clientHeight;
 
     const vInterval = calculateVelocityInterval(this.canvas);
-    const clickedStates = transformCanvasToStates([posX, posY], vInterval);
+    const clickedStates = transformCanvasToStates(
+      this.canvas,
+      [posX, posY],
+      vInterval
+    );
 
     this.moved =
       this.states.angle !== clickedStates.x ||
@@ -112,33 +118,22 @@ export class InputManager {
   }
 }
 
-const createCanvasToTextureMatrix = (aspectRatio: number = 1) => {
-  const matrix = mat3.create();
-
-  mat3.translate(matrix, matrix, [0, 1]);
-  mat3.scale(matrix, matrix, [1 * aspectRatio, -1]);
-
-  return matrix;
-};
-
-const crateTextureToStatesMatrix = (v: number, aspectRatio: number = 1) => {
-  const matrix = mat3.create();
-  mat3.translate(matrix, matrix, [-Math.PI, -v]);
-  mat3.scale(matrix, matrix, [2 * Math.PI * aspectRatio, 2 * v]);
-  return matrix;
-};
-
 const transformStatesToTexture = (
+  canvas: HTMLCanvasElement,
   point: [number, number],
   v: number,
   aspectRatio: number
 ) => {
-  const matrix = mat3.create();
+  const isLarge = isLargeCanvas(canvas);
 
-  // Scale down x by 2PI and y by 2(v)
-  mat3.scale(matrix, matrix, [1 / ((2 * Math.PI) / aspectRatio), 1 / (2 * v)]);
+  const xScaleFactor = isLarge ? 4 * Math.PI : 2 * Math.PI;
+  const xShiftFactor = isLarge ? Math.PI / 2 : Math.PI;
+
+  const matrix = mat3.create();
+  // Scale down x and y
+  mat3.scale(matrix, matrix, [1 / (xScaleFactor / aspectRatio), 1 / (2 * v)]);
   // Shift x by PI and y by (v)
-  mat3.translate(matrix, matrix, [Math.PI, v]);
+  mat3.translate(matrix, matrix, [xShiftFactor, v]);
 
   // Apply the transformation matrix to the point
   const transformedPoint = vec2.create();
@@ -149,6 +144,15 @@ const transformStatesToTexture = (
   );
 
   return transformedPoint;
+};
+
+const createCanvasToTextureMatrix = (aspectRatio: number = 1) => {
+  const matrix = mat3.create();
+
+  mat3.translate(matrix, matrix, [0, 1]);
+  mat3.scale(matrix, matrix, [1 * aspectRatio, -1]);
+
+  return matrix;
 };
 
 const transformCanvasToTexture = (
@@ -169,11 +173,31 @@ const transformCanvasToTexture = (
   };
 };
 
-const transformCanvasToStates = (point: [number, number], v: number) => {
+const crateTextureToStatesMatrix = (
+  isLarge: boolean,
+  v: number,
+  aspectRatio: number = 1
+) => {
+  const matrix = mat3.create();
+
+  const xShiftFactor = isLarge ? -Math.PI / 2 : -Math.PI;
+  const xScaleFactor = isLarge ? 4 * Math.PI : 2 * Math.PI;
+
+  mat3.translate(matrix, matrix, [xShiftFactor, -v]);
+  mat3.scale(matrix, matrix, [xScaleFactor * aspectRatio, 2 * v]);
+  return matrix;
+};
+
+const transformCanvasToStates = (
+  canvas: HTMLCanvasElement,
+  point: [number, number],
+  v: number
+) => {
+  const isLarge = isLargeCanvas(canvas);
   const matrix = mat3.create();
 
   const toTextureMatrix = createCanvasToTextureMatrix();
-  const toStatesMatrix = crateTextureToStatesMatrix(v);
+  const toStatesMatrix = crateTextureToStatesMatrix(isLarge, v);
 
   mat3.multiply(matrix, toStatesMatrix, toTextureMatrix);
 
