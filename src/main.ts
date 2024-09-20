@@ -26,32 +26,18 @@ if (ctx) {
 
   const inputManager = new InputManager(canvas);
 
-  // Set up GUI controls
-  startGUI(gl, ext, canvas, programs, inputManager);
-
-  initFramebuffers(gl, ext, programs.copyProgram);
-
   const backgroundDivEl: HTMLDivElement | null =
     document.querySelector(".background-div");
 
+  startGUI(gl, ext, canvas, programs, inputManager);
+
+  initFramebuffers(gl, ext, programs.copyProgram);
   updateOscillationStates(gl, canvas, programs.stateProgram);
   calculateOscillationDerivative(gl, programs.derivativeProgram);
   calculateStatesMagnitude(gl, canvas, programs.magnitudeProgram);
   updateVectorField(gl, canvas, programs.arrowFieldProgram);
 
-  window.addEventListener("resize", () => {
-    reset(
-      gl,
-      programs.pointProgram,
-      programs.pointMovementProgram,
-      inputManager
-    );
-    initFramebuffers(gl, ext, programs.copyProgram);
-    updateOscillationStates(gl, canvas, programs.stateProgram);
-    calculateOscillationDerivative(gl, programs.derivativeProgram);
-    calculateStatesMagnitude(gl, canvas, programs.magnitudeProgram);
-    updateVectorField(gl, canvas, programs.arrowFieldProgram);
-  });
+  window.addEventListener("resize", () => {});
 
   createPendulumVisualization(inputManager, canvas);
 

@@ -1,3 +1,4 @@
+import { resizeCanvas } from "../core/canvasUtils";
 import { blit, clear } from "../core/frameBufferUtils";
 import { Program } from "../core/programUtils";
 import { WebGLExtensions } from "../core/types";
@@ -12,10 +13,12 @@ import {
 } from "../fbo/shaders/types";
 import { frameBufferState } from "../fbo/states";
 import { config } from "./config";
+import { initFramebuffers } from "./framebuffers";
 import { InputManager } from "./input/inputManager";
 import { createPendulumVisualization } from "./pendulum-visualization/pendulum";
 import { step } from "./step";
 import { calcDeltaTime, isLargeCanvas } from "./utils";
+import { updateVectorField } from "./vectorField";
 
 export const update = (
   gl: WebGL2RenderingContext,
@@ -27,6 +30,21 @@ export const update = (
   const dt = calcDeltaTime();
   if (!config.PAUSED) {
     step(gl, programs.pointMovementProgram, canvas, inputManager, dt);
+  }
+
+  if (resizeCanvas(canvas)) {
+    resizeCanvas(canvas);
+    reset(
+      gl,
+      programs.pointProgram,
+      programs.pointMovementProgram,
+      inputManager
+    );
+    initFramebuffers(gl, ext, programs.copyProgram);
+    updateOscillationStates(gl, canvas, programs.stateProgram);
+    calculateOscillationDerivative(gl, programs.derivativeProgram);
+    calculateStatesMagnitude(gl, canvas, programs.magnitudeProgram);
+    updateVectorField(gl, canvas, programs.arrowFieldProgram);
   }
 
   updateInitialState(gl, inputManager, canvas, programs.pointProgram);
