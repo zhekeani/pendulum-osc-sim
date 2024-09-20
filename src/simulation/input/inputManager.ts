@@ -127,7 +127,7 @@ const transformStatesToTexture = (
   const isLarge = isLargeCanvas(canvas);
 
   const xScaleFactor = isLarge ? 4 * Math.PI : 2 * Math.PI;
-  const xShiftFactor = isLarge ? Math.PI / 2 : Math.PI;
+  const xShiftFactor = isLarge ? Math.PI : Math.PI;
 
   const matrix = mat3.create();
   // Scale down x and y
@@ -180,7 +180,7 @@ const crateTextureToStatesMatrix = (
 ) => {
   const matrix = mat3.create();
 
-  const xShiftFactor = isLarge ? -Math.PI / 2 : -Math.PI;
+  const xShiftFactor = isLarge ? -Math.PI : -Math.PI;
   const xScaleFactor = isLarge ? 4 * Math.PI : 2 * Math.PI;
 
   mat3.translate(matrix, matrix, [xShiftFactor, -v]);
