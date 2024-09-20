@@ -4,7 +4,7 @@ import { Program } from "../core/programUtils";
 import { ArrowFieldShaderUniform } from "../fbo/shaders/types";
 import { frameBufferState } from "../fbo/states";
 import { config } from "./config";
-import { calculateYInterval } from "./simulation";
+import { calculateVelocityInterval } from "./simulation";
 import { isLargeCanvas } from "./utils";
 
 export const updateVectorField = (
@@ -20,7 +20,7 @@ export const updateVectorField = (
     clear(gl, arrowField);
 
     const aspectRatio = canvas.clientWidth / canvas.clientHeight;
-    const vInterval = calculateYInterval(canvas);
+    const vInterval = calculateVelocityInterval(canvas);
 
     arrowFieldProgram.bind();
     gl.uniform1f(arrowFieldProgram.uniforms.opacity, VECTOR_FIELD_OPACITY);

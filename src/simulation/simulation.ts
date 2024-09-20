@@ -128,7 +128,7 @@ export const calculateStatesMagnitude = (
   if (oscillationMagnitude && oscillationDerivative) {
     const { GRAVITY, PENDULUM_LENGTH, AIR_RESISTANCE_COEF } = config;
 
-    const maxV = calculateYInterval(canvas);
+    const maxV = calculateVelocityInterval(canvas);
     const maxAcc = AIR_RESISTANCE_COEF * maxV + GRAVITY / PENDULUM_LENGTH;
     const dt = 0.00001;
     const dx = maxV * dt;
@@ -176,7 +176,7 @@ export const updateOscillationStates = (
   const { oscillationState } = frameBufferState;
 
   if (oscillationState) {
-    const yInterval = calculateYInterval(canvas);
+    const yInterval = calculateVelocityInterval(canvas);
 
     stateProgram.bind();
 
@@ -186,7 +186,7 @@ export const updateOscillationStates = (
   }
 };
 
-export const calculateYInterval = (canvas: HTMLCanvasElement) => {
+export const calculateVelocityInterval = (canvas: HTMLCanvasElement) => {
   const aspectRatio = canvas.clientWidth / canvas.clientHeight;
   const yIntervalOri = 3.2;
   const yInterval = yIntervalOri / aspectRatio;

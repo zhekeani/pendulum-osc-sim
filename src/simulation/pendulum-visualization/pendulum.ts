@@ -1,6 +1,6 @@
 import * as d3 from "d3";
 import { InputManager } from "../input/inputManager";
-import { calculateYInterval } from "../simulation";
+import { calculateVelocityInterval } from "../simulation";
 
 interface PendulumSelections {
   parentCtr: d3.Selection<d3.BaseType, unknown, HTMLElement, any> | null;
@@ -121,7 +121,7 @@ const drawVelocityArrow = (
   arrowShaft: d3.Selection<SVGLineElement, unknown, HTMLElement, any>,
   arrowHead: d3.Selection<SVGPolygonElement, unknown, HTMLElement, any>
 ) => {
-  const vInterval = calculateYInterval(canvas);
+  const vInterval = calculateVelocityInterval(canvas);
   const arrowScale = d3
     .scaleLinear()
     .domain([-vInterval, vInterval])

@@ -1,5 +1,5 @@
 import { mat3, vec2 } from "gl-matrix";
-import { calculateYInterval } from "../simulation";
+import { calculateVelocityInterval } from "../simulation";
 
 const initialState = {
   angle: (Math.PI * 5) / 6,
@@ -29,7 +29,7 @@ export class InputManager {
   // Get the normalized coordinates (0 to 1)
   getTexCoord() {
     const { angle, velocity } = this.states;
-    const vInterval = calculateYInterval(this.canvas);
+    const vInterval = calculateVelocityInterval(this.canvas);
     const aspectRatio = this.canvas.clientWidth / this.canvas.clientHeight;
 
     // Transform the point from (-π, v) to (π, -v) to normalized space
@@ -89,7 +89,7 @@ export class InputManager {
     const posX = event.offsetX / this.canvas.clientWidth;
     const posY = event.offsetY / this.canvas.clientHeight;
 
-    const vInterval = calculateYInterval(this.canvas);
+    const vInterval = calculateVelocityInterval(this.canvas);
     const clickedStates = transformCanvasToStates([posX, posY], vInterval);
 
     this.moved =
