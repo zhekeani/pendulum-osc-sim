@@ -16,7 +16,7 @@ void main() {
     float dist = distance(uv, pCoord) ;
 
     if (dist < radius) {
-        gl_FragColor = vec4(1.0, 1.0, 1.0, 0.5);
+        gl_FragColor = vec4(0.8, 0.8, 0.8, 0.7);
     } else {
         discard; 
     }

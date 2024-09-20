@@ -9,7 +9,6 @@ import { setupPrograms } from "./simulation/program";
 import {
   calculateOscillationDerivative,
   calculateStatesMagnitude,
-  reset,
   update,
   updateOscillationStates,
 } from "./simulation/simulation";

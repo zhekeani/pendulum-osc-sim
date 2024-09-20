@@ -53,6 +53,7 @@ body {
   width: 30%;
   aspect-ratio: 1/1;
   background-color: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(98, 174, 186, 0.5);
 }
 
 #pendulum-ctr {

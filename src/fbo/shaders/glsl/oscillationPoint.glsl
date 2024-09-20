@@ -16,7 +16,7 @@ void main() {
     float dist = distance(uv, pCoord);
 
     // Define a feathering range for smoothing the circle's edge
-    float feather = 0.005;
+    float feather = 0.002;
 
     // Calculate the alpha value based on the distance to smooth the edge
     float alpha = smoothstep(radius, radius - feather, dist);
