@@ -18,7 +18,7 @@ import gridLinesShaderSource from "../fbo/shaders/glsl/gridLines.glsl?raw";
 import displayShaderSource from "../fbo/shaders/glsl/displayShader.glsl?raw";
 import derivativeShaderSource from "../fbo/shaders/glsl/derivativeShader.glsl?raw";
 import pointShaderSource from "../fbo/shaders/glsl/oscillationPoint.glsl?raw";
-import pointMovementShaderSource from "../fbo/shaders/glsl/pointMovementShader.glsl?raw";
+import pointMovementShaderSource from "../fbo/shaders/glsl/oscillationPointMovement.glsl?raw";
 import arrowVertexShaderSource from "../fbo/shaders/glsl/ArrowVertexShader.glsl?raw";
 import arrowFieldShaderSource from "../fbo/shaders/glsl/ArrowFieldShader.glsl?raw";
 import magnitudeShaderSource from "../fbo/shaders/glsl/statesMagnitudeShader.glsl?raw";
