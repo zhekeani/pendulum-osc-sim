@@ -4,6 +4,7 @@ import { PointMovementShaderUniform } from "../fbo/shaders/types";
 import { frameBufferState } from "../fbo/states";
 import { config } from "./config";
 import { InputManager } from "./input/inputManager";
+import { isLargeCanvas } from "./utils";
 
 export const step = (
   gl: WebGL2RenderingContext,
@@ -15,7 +16,7 @@ export const step = (
   const { angle, velocity } = inputManager.states;
 
   // Calculate velocity
-  const newStates = calculateNextStates(angle, velocity, dt);
+  const newStates = calculateNextStates(canvas, angle, velocity, dt);
 
   inputManager.updateStates(newStates.angle, newStates.velocity);
 
@@ -23,10 +24,12 @@ export const step = (
 };
 
 const calculateNextStates = (
+  canvas: HTMLCanvasElement,
   angle: number,
   velocity: number,
   dt: number
 ): { angle: number; velocity: number } => {
+  const isLarge = isLargeCanvas(canvas);
   const { AIR_RESISTANCE_COEF, GRAVITY, PENDULUM_LENGTH } = config;
   const acceleration =
     -AIR_RESISTANCE_COEF * velocity -
@@ -35,9 +38,16 @@ const calculateNextStates = (
   let nextAngle = angle + velocity * 2 * dt;
   const nextVelocity = velocity + acceleration * dt;
 
-  if (Math.abs(angle) > Math.PI) {
+  if (
+    (!isLarge && Math.abs(angle) > Math.PI) ||
+    (isLarge && angle > Math.PI * 3)
+  ) {
     const n = angle < 0 ? 1 : -1;
     nextAngle = (angle % Math.PI) + Math.PI * n;
+  }
+
+  if (isLarge && angle < -Math.PI) {
+    nextAngle = (angle % Math.PI) + Math.PI * 3;
   }
 
   return {
