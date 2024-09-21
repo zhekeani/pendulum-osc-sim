@@ -20,19 +20,18 @@ body {
   width: 100%;
   height: 100%;
   display: flex;
-  /* max-width: 1000px;  */
   position: relative;
-  justify-content: center; /* Horizontally center the content */
-  align-items: center; /* Vertically center the content if needed */
-  margin: 0 auto; /* Center horizontally */
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
 }
 
 .background-div {
   position: absolute;
   width: 100%;
   height: 100%;
-  background-color: black; /* Color for the background div */
-  z-index: 0; /* Below the canvas */
+  background-color: black;
+  z-index: 0;
 }
 
 #mainCanvas {
@@ -40,14 +39,14 @@ body {
   top: 0;
   width: 100%;
   height: 100%;
-  z-index: 10; /* Above the background div */
+  z-index: 10;
 }
 
-#visualization-ctr {
+#visualization-container {
   position: absolute;
   bottom: 0;
-  right: 0;
-  transform: translate(-10px, -10px);
+  left: 0;
+  transform: translate(10px, -10px);
   z-index: 20;
   max-width: 200px;
   width: 30%;
@@ -60,14 +59,12 @@ body {
   position: relative;
 }
 
-/* Center the pendulum svg in the div */
 svg {
   width: 100%;
   height: 100%;
   display: block;
 }
 
-/* Styling for the pendulum rod and centerline */
 .line {
   stroke: white;
   stroke-width: 2;
@@ -79,7 +76,7 @@ svg {
   stroke-opacity: 0.6;
 }
 
-#pendulum-angle {
+#pendulum-angle-text {
   color: white;
   font-size: 1em;
   line-height: 0;
@@ -94,13 +91,11 @@ svg {
   fill: #f37c6fff;
 }
 
-/* Dashed center line */
 .center-line {
   stroke-dasharray: 5, 5;
   opacity: 0.7;
 }
 
-/* Pendulum ball (white circle) */
 .ball {
   fill: white;
 }
