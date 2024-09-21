@@ -1,7 +1,7 @@
 ## Pendulum Oscillation - Phase Space Simulation
 
 <div align="center">
-  <img src="/public/pendulum-osc.svg" alt="Pendulum Simulation Logo" width="160">
+  <img src="/public/screen-shot.webp" alt="Pendulum Simulation Logo Screen Shot" width="100%">
 </div>
 
 <br>
@@ -10,4 +10,4 @@ Pendulum oscillations using **WebGL2**, visualized in a **phase space** (angle v
 
 **Note:** Ensure that your device and browser support WebGL2.
 
-<a href="https://zhekeani.github.io/pendulum-osc-sim/" target="blank"><strong>Try the simulation here</strong></a>
+<a href="https://zhekeani.github.io/pendulum-osc-sim/" target="_blank"><strong>Try the simulation here</strong></a>
