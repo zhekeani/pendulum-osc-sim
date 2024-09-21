@@ -5,12 +5,14 @@ export type CopyShaderUniforms = {
 };
 
 export type StateShaderUniforms = {
+  aspectRatio: string;
   maxY: string;
   loopCount: string;
 };
 
 export type DerivativeShaderUniform = {
   stateTexture: string;
+  mu: string;
   g: string;
   L: string;
 };
