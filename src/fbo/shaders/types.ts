@@ -6,7 +6,7 @@ export type CopyShaderUniforms = {
 
 export type StateShaderUniforms = {
   maxY: string;
-  isLarge: string;
+  loopCount: string;
 };
 
 export type DerivativeShaderUniform = {
