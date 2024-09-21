@@ -1,2 +1,13 @@
 ## Pendulum Oscillation - Phase Space Simulation
-Web app for you to play around with pendulum oscillations and see how they look like in a **phase space** (plotting angle vs velocity). Tweak the settings like pendulum lenght and air resistance, and watch how the pendulum behaves in real time.
+
+<div align="center">
+  <img src="/public/pendulum-osc.svg" alt="Pendulum Simulation Logo" width="160">
+</div>
+
+&nbsp;
+
+Pendulum oscillations using **WebGL2**, visualized in a **phase space** (angle vs. velocity). You can adjust settings such as the pendulum length and air resistance to observe how these parameters affect the motion in real time.
+
+**Note:** Ensure that your device and browser support WebGL2.
+
+[**Try the simulation here!**](https://zhekeani.github.io/pendulum-osc-sim/)
