@@ -1,24 +1,27 @@
 import * as d3 from "d3";
+import { calculateVelocityInterval } from "../simulation";
+import { calculateAngleLoopCount } from "../utils";
 
-export const generateBackground = (backgroundDivEl: HTMLDivElement) => {
+export const generateBackground = (
+  backgroundDivEl: HTMLDivElement,
+  canvas: HTMLCanvasElement
+) => {
+  const loopCount = calculateAngleLoopCount(canvas);
   const width = backgroundDivEl.clientWidth;
   const height = backgroundDivEl.clientHeight;
 
-  const aspectRatio = width / height;
-  const yInterval = 3.2 / aspectRatio;
-  let yGridCount = Math.floor(yInterval / 0.2) * 2;
+  const yInterval = calculateVelocityInterval(canvas);
+  let yGridCount = Math.floor(yInterval / 0.2);
+  const xGridCount = 20 * loopCount;
+  const majorGridInterval = 5;
 
-  // Ensure horizontal grid count is even
   if (yGridCount % 2 !== 0) {
     yGridCount += 1;
   }
 
   const yGridSpacing = height / yGridCount;
-  const xGridSpacing = width / 20;
+  const xGridSpacing = width / xGridCount;
 
-  const majorGridInterval = 5; // Major grid every 5 lines
-
-  // Generate grid lines
   generateGridLines(
     backgroundDivEl,
     xGridSpacing,
@@ -26,82 +29,88 @@ export const generateBackground = (backgroundDivEl: HTMLDivElement) => {
     majorGridInterval
   );
 
-  // Generate axes aligned with grid lines
   generateAxes(
+    loopCount,
     backgroundDivEl,
     { width, height },
-    { major: 20 }, // Example major tick count for x-axis
-    { major: yGridCount }, // Match the yGridCount for the y-axis
-    majorGridInterval
+    majorGridInterval,
+    xGridCount,
+    yGridCount
   );
 };
 
 const generateAxes = (
+  loopCount: number,
   container: HTMLDivElement,
   ctrDimensions: { width: number; height: number },
-  xTicksCount: { major: number },
-  yTicksCount: { major: number },
-  majorGridInterval: number // Pass the same major grid interval used for grid lines
+  majorGridInterval: number,
+  xGridCount: number,
+  yGridCount: number
 ) => {
   const svg = d3.select(container).select("svg");
+  const { width, height } = ctrDimensions;
+  const xTicksCount = xGridCount / majorGridInterval;
+  const yTicksCount = yGridCount / majorGridInterval;
 
-  // X-Axis Scale
   const xAxisScale = d3
     .scaleLinear()
-    .domain([-xTicksCount.major / 2, xTicksCount.major / 2])
-    .range([0, ctrDimensions.width]);
+    .domain([-xGridCount / 2, xGridCount / 2])
+    .range([0, width]);
 
-  // X-Axis: Place ticks on the major grid lines
   const xAxis = d3
     .axisBottom(xAxisScale)
-    .ticks(xTicksCount.major / majorGridInterval) // Major ticks on grid lines
+    .ticks(xTicksCount)
     .tickSize(4)
     .tickFormat((_d, i) => {
-      const index = i - Math.floor(xTicksCount.major / 2 / majorGridInterval);
-      if (index === 0) return "0";
-      const absIndex = Math.abs(index);
-      const sign = index < 0 ? "-" : "";
-      if (absIndex === 1) return `${sign}π/2`;
-      if (absIndex % 2 === 0) return `${sign}${absIndex / 2}π`;
-      return `${sign}${absIndex}/2π`;
+      const index = i / 2 - 1;
+      return `${index}π`;
     });
 
-  // Y-Axis Scale
   const yAxisScale = d3
     .scaleLinear()
-    .domain([-yTicksCount.major / 10, yTicksCount.major / 10])
-    .range([ctrDimensions.height, 0]);
+    .domain([-yTicksCount / 2, yTicksCount / 2])
+    .range([height, 0]);
 
-  // Y-Axis: Place ticks on the major grid lines
-  const yAxis = d3
-    .axisLeft(yAxisScale)
-    .ticks(yTicksCount.major / majorGridInterval)
-    .tickSize(0);
+  const yAxis = d3.axisLeft(yAxisScale).ticks(yTicksCount).tickSize(0);
 
-  // Append the X-Axis to the center of the SVG, aligned with the grid lines
   svg
     .append("g")
     .attr("class", "x-axis")
-    .attr("transform", `translate(0, ${ctrDimensions.height / 2})`) // Center the axis vertically
+    .attr("transform", `translate(0, ${ctrDimensions.height / 2})`)
     .call(xAxis)
     .selectAll(".tick text")
     .style("fill", "#fff")
     .style("font-size", "12px")
     .style("font-weight", "bold");
 
-  // Append the Y-Axis to the center of the SVG, aligned with the grid lines
-  svg
-    .append("g")
-    .attr("class", "y-axis")
-    .attr("transform", `translate(${ctrDimensions.width / 2}, 0)`) // Center the axis horizontally
-    .call(yAxis)
-    .selectAll(".tick text")
-    .style("fill", "#fff")
-    .style("font-size", "12px")
-    .style("font-weight", "bold");
+  const ticks = svg.selectAll(".x-axis .tick text");
 
-  // Ensure the domain line (axis line) is visible for both axes
-  svg.selectAll(".domain").style("stroke", "#fff"); // White axis lines for visibility
+  ticks
+    .filter((_, i) => i === 0)
+    .attr("dx", "10px")
+    .style("text-anchor", "start");
+
+  ticks
+    .filter((_, i, nodes) => i === nodes.length - 1)
+    .attr("dx", "-10px")
+    .style("text-anchor", "end");
+
+  const yAxisSpacing = ctrDimensions.width / loopCount;
+
+  for (let i = 0; i < loopCount; i++) {
+    const xPos = yAxisSpacing * i;
+
+    svg
+      .append("g")
+      .attr("class", "y-axis")
+      .attr("transform", `translate(${xPos + yAxisSpacing / 2}, 0)`)
+      .call(yAxis)
+      .selectAll(".tick text")
+      .style("fill", "#fff")
+      .style("font-size", "12px")
+      .style("font-weight", "bold");
+  }
+  svg.selectAll(".domain").style("stroke", "#fff");
 };
 
 const generateGridLines = (
@@ -115,14 +124,11 @@ const generateGridLines = (
 
   const gridLinesColor = "#62aeba";
 
-  // Calculate center positions for both axes
   const xCenter = Math.floor(width / 2);
   const yCenter = Math.floor(height / 2);
 
-  // Remove any existing SVG element before appending a new one
   d3.select(container).select("svg").remove();
 
-  // Append an SVG element to the container
   const svg = d3
     .select(container)
     .append("svg")
@@ -131,13 +137,12 @@ const generateGridLines = (
     .style("position", "absolute")
     .style("top", "0")
     .style("left", "0")
-    .style("z-index", 0); // Ensure it's below any other content
+    .style("z-index", 0);
 
-  // Generate vertical grid lines based on consistent width and spacing
   const verticalLinesCount = Math.floor(width / xGridSpacing);
   for (let i = 0; i <= verticalLinesCount; i++) {
     const xPosition = i * xGridSpacing;
-    const distanceFromCenter = Math.abs(xPosition - xCenter); // Distance from center
+    const distanceFromCenter = Math.abs(xPosition - xCenter);
     const isMajorGrid =
       Math.round(distanceFromCenter / xGridSpacing) % majorGridInterval === 0;
 
@@ -148,15 +153,14 @@ const generateGridLines = (
       .attr("x2", xPosition)
       .attr("y2", height)
       .attr("stroke", gridLinesColor)
-      .attr("stroke-width", isMajorGrid ? 1.2 : 0.8) // Thicker line for major grid
-      .attr("stroke-opacity", isMajorGrid ? 0.9 : 0.5); // Higher opacity for major grid
+      .attr("stroke-width", isMajorGrid ? 1.2 : 0.8)
+      .attr("stroke-opacity", isMajorGrid ? 0.9 : 0.5);
   }
 
-  // Generate horizontal grid lines based on consistent height and spacing
   const horizontalLinesCount = Math.floor(height / yGridSpacing);
   for (let j = 0; j <= horizontalLinesCount; j++) {
     const yPosition = j * yGridSpacing;
-    const distanceFromCenter = Math.abs(yPosition - yCenter); // Distance from center
+    const distanceFromCenter = Math.abs(yPosition - yCenter);
     const isMajorGrid =
       Math.round(distanceFromCenter / yGridSpacing) % majorGridInterval === 0;
 
@@ -167,7 +171,7 @@ const generateGridLines = (
       .attr("x2", width)
       .attr("y2", yPosition)
       .attr("stroke", gridLinesColor)
-      .attr("stroke-width", isMajorGrid ? 1.2 : 0.8) // Thicker line for major grid
-      .attr("stroke-opacity", isMajorGrid ? 0.9 : 0.5); // Higher opacity for major grid
+      .attr("stroke-width", isMajorGrid ? 1.2 : 0.8)
+      .attr("stroke-opacity", isMajorGrid ? 0.9 : 0.5);
   }
 };
