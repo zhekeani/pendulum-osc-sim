@@ -27,7 +27,7 @@ if (ctx && background) {
 
   const inputManager = new InputManager(canvas);
 
-  startGUI(gl, ext, canvas, programs, inputManager);
+  startGUI(gl, canvas, programs, inputManager);
 
   generateBackground(background, canvas);
   createPendulumVisualization(inputManager, canvas);

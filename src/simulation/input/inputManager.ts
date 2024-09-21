@@ -1,6 +1,6 @@
 import { mat3, vec2 } from "gl-matrix";
 import { calculateVelocityInterval } from "../simulation";
-import { calculateAngleLoopCount, isLargeCanvas } from "../utils";
+import { calculateAngleLoopCount } from "../utils";
 
 const initialState = {
   angle: (Math.PI * 5) / 6,

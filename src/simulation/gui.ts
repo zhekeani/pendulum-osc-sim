@@ -1,8 +1,6 @@
 import GUI from "lil-gui";
-import { WebGLExtensions } from "../core/types";
 import { SimPrograms } from "../fbo/shaders/types";
 import { config } from "./config";
-import { initFramebuffers } from "./framebuffers";
 import { InputManager } from "./input/inputManager";
 import {
   calculateOscillationDerivative,
@@ -13,7 +11,6 @@ import { updateVectorField } from "./vectorField";
 
 export const startGUI = (
   gl: WebGL2RenderingContext,
-  ext: WebGLExtensions,
   canvas: HTMLCanvasElement,
   programs: SimPrograms,
   inputManager: InputManager
