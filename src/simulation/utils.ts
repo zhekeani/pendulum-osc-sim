@@ -8,14 +8,14 @@ export const calcDeltaTime = (): number => {
   return deltaTime;
 };
 
-export const isLargeCanvas = (canvas: HTMLCanvasElement) => {
-  return canvas.clientWidth > 1200;
-};
-
 export const calculateAngleLoopCount = (canvas: HTMLCanvasElement) => {
-  const canvasMinWidth = 650;
+  const canvasMinWidth = 580;
 
   let loopCount = Math.floor(canvas.clientWidth / canvasMinWidth);
   loopCount = loopCount === 0 ? 1 : loopCount;
   return loopCount;
+};
+
+export const calcCanvasAspectRatio = (canvas: HTMLCanvasElement) => {
+  return canvas.clientWidth / canvas.clientHeight;
 };
