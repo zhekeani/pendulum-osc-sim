@@ -1,6 +1,7 @@
 import * as d3 from "d3";
 import { InputManager } from "../input/inputManager";
 import { calculateVelocityInterval } from "../simulation";
+import { calculateAngleLoopCount } from "../utils";
 
 interface PendulumSelections {
   parentCtr: d3.Selection<d3.BaseType, unknown, HTMLElement, any> | null;
@@ -71,8 +72,9 @@ export const createPendulumVisualization = (
     arrowHead
   ) {
     const { angle, velocity } = inputManager.states;
+    const loopCount = calculateAngleLoopCount(canvas);
 
-    const ctrWidth = canvas.clientWidth * 0.4;
+    const ctrWidth = (canvas.clientWidth * 0.4) / loopCount;
     const ctrHeight = ctrWidth;
 
     const pendulumSpec: PendulumSpec = {
@@ -172,9 +174,7 @@ const drawAngleAndArc = (
 
   const startAngle = Math.PI;
   const endAngle =
-    normalizedAngle > Math.PI
-      ? Math.PI * 2 // Complete full rotation
-      : Math.PI + normalizedAngle;
+    normalizedAngle > Math.PI ? Math.PI * 2 : Math.PI + normalizedAngle;
 
   const radius = pendulumSpec.rodLength * 0.3;
   const strokeWidth = 1;
@@ -182,8 +182,8 @@ const drawAngleAndArc = (
     .arc()
     .innerRadius(radius - strokeWidth)
     .outerRadius(radius)
-    .startAngle(startAngle) // Always start at the bottom
-    .endAngle(endAngle); // End based on the normalized angle
+    .startAngle(startAngle)
+    .endAngle(endAngle);
 
   const d = arcGenerator({
     startAngle: Math.PI,
@@ -276,14 +276,14 @@ const definePendulumSelections = () => {
   } = pendulumSelections;
 
   if (!parentCtr)
-    pendulumSelections.parentCtr = d3.select("#visualization-ctr");
+    pendulumSelections.parentCtr = d3.select("#visualization-container");
 
   if (!angleDegree)
     pendulumSelections.angleDegree = document.getElementById(
-      "pendulum-angle"
+      "pendulum-angle-text"
     ) as HTMLParagraphElement;
 
-  if (!ctr) pendulumSelections.ctr = d3.select("#pendulum-ctr");
+  if (!ctr) pendulumSelections.ctr = d3.select("#pendulum-svg-container");
 
   if (!svg)
     pendulumSelections.svg = pendulumSelections.ctr?.append("svg") || null;
