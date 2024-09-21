@@ -1,6 +1,6 @@
 import { mat3, vec2 } from "gl-matrix";
 import { calculateVelocityInterval } from "../simulation";
-import { isLargeCanvas } from "../utils";
+import { calculateAngleLoopCount, isLargeCanvas } from "../utils";
 
 const initialState = {
   angle: (Math.PI * 5) / 6,
@@ -124,10 +124,10 @@ const transformStatesToTexture = (
   v: number,
   aspectRatio: number
 ) => {
-  const isLarge = isLargeCanvas(canvas);
+  const loopCount = calculateAngleLoopCount(canvas);
 
-  const xScaleFactor = isLarge ? 4 * Math.PI : 2 * Math.PI;
-  const xShiftFactor = isLarge ? Math.PI : Math.PI;
+  const xScaleFactor = loopCount * 2 * Math.PI;
+  const xShiftFactor = Math.PI;
 
   const matrix = mat3.create();
   // Scale down x and y
@@ -174,14 +174,14 @@ const transformCanvasToTexture = (
 };
 
 const crateTextureToStatesMatrix = (
-  isLarge: boolean,
+  loopCount: number,
   v: number,
   aspectRatio: number = 1
 ) => {
   const matrix = mat3.create();
 
-  const xShiftFactor = isLarge ? -Math.PI : -Math.PI;
-  const xScaleFactor = isLarge ? 4 * Math.PI : 2 * Math.PI;
+  const xShiftFactor = -Math.PI;
+  const xScaleFactor = loopCount * 2 * Math.PI;
 
   mat3.translate(matrix, matrix, [xShiftFactor, -v]);
   mat3.scale(matrix, matrix, [xScaleFactor * aspectRatio, 2 * v]);
@@ -193,11 +193,11 @@ const transformCanvasToStates = (
   point: [number, number],
   v: number
 ) => {
-  const isLarge = isLargeCanvas(canvas);
+  const loopCount = calculateAngleLoopCount(canvas);
   const matrix = mat3.create();
 
   const toTextureMatrix = createCanvasToTextureMatrix();
-  const toStatesMatrix = crateTextureToStatesMatrix(isLarge, v);
+  const toStatesMatrix = crateTextureToStatesMatrix(loopCount, v);
 
   mat3.multiply(matrix, toStatesMatrix, toTextureMatrix);
 
