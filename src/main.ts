@@ -17,18 +17,20 @@ import "./style.css";
 
 const canvas = document.getElementsByTagName("canvas")[0];
 resizeCanvas(canvas);
+const background: HTMLDivElement | null =
+  document.querySelector(".background-div");
 const ctx = getWebGLContext(canvas);
 
-if (ctx) {
+if (ctx && background) {
   const { gl, ext } = ctx;
   const { programs } = setupPrograms(gl);
 
   const inputManager = new InputManager(canvas);
 
-  const backgroundDivEl: HTMLDivElement | null =
-    document.querySelector(".background-div");
-
   startGUI(gl, ext, canvas, programs, inputManager);
+
+  generateBackground(background, canvas);
+  createPendulumVisualization(inputManager, canvas);
 
   initFramebuffers(gl, ext, programs.copyProgram);
   updateOscillationStates(gl, canvas, programs.stateProgram);
@@ -36,20 +38,7 @@ if (ctx) {
   calculateStatesMagnitude(gl, canvas, programs.magnitudeProgram);
   updateVectorField(gl, canvas, programs.arrowFieldProgram);
 
-  window.addEventListener("resize", () => {});
-
-  createPendulumVisualization(inputManager, canvas);
-
-  if (backgroundDivEl) {
-    generateBackground(backgroundDivEl);
-
-    window.addEventListener("resize", () => {
-      generateBackground(backgroundDivEl);
-    });
-
-    // Update simulation function
-    update(gl, ext, canvas, programs, inputManager);
-  }
+  update(gl, ext, canvas, background, programs, inputManager);
 } else {
   handleWebGLNotSupported(canvas);
 }

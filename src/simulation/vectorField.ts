@@ -5,7 +5,7 @@ import { ArrowFieldShaderUniform } from "../fbo/shaders/types";
 import { frameBufferState } from "../fbo/states";
 import { config } from "./config";
 import { calculateVelocityInterval } from "./simulation";
-import { isLargeCanvas } from "./utils";
+import { calcCanvasAspectRatio, calculateAngleLoopCount } from "./utils";
 
 export const updateVectorField = (
   gl: WebGL2RenderingContext,
@@ -19,7 +19,7 @@ export const updateVectorField = (
 
     clear(gl, arrowField);
 
-    const isLarge = isLargeCanvas(canvas);
+    const loopCount = calculateAngleLoopCount(canvas);
     const aspectRatio = canvas.clientWidth / canvas.clientHeight;
     const vInterval = calculateVelocityInterval(canvas);
 
@@ -33,7 +33,7 @@ export const updateVectorField = (
 
     const { columns, rows } = calculateRowsAndColumns(canvas);
 
-    const arrowBaseSize = isLarge ? 0.1 : 0.2;
+    const arrowBaseSize = 0.2 - (0.02 / aspectRatio) * (loopCount * 2 - 1);
 
     for (let row = 0; row < rows; row++) {
       for (let column = 0; column < columns; column++) {
@@ -57,12 +57,7 @@ export const updateVectorField = (
           matrix
         );
 
-        blitArrow(
-          gl,
-          arrowField,
-          false,
-          arrowBaseSize + 5000 * magnitude * aspectRatio
-        );
+        blitArrow(gl, arrowField, false, arrowBaseSize + 5000 * magnitude);
       }
     }
   }
@@ -74,20 +69,14 @@ const calculateRotationAndMagnitude = (
   x: number,
   y: number
 ) => {
-  const isLarge = isLargeCanvas(canvas);
+  const loopCount = calculateAngleLoopCount(canvas);
 
   const adJustedX = (x + 1) / 2;
   const adjustedY = (y + 1) / 2;
 
   const { GRAVITY, PENDULUM_LENGTH, AIR_RESISTANCE_COEF } = config;
 
-  let angle: number;
-
-  if (!isLarge) {
-    angle = lerp(-Math.PI, Math.PI, adJustedX);
-  } else {
-    angle = lerp(-Math.PI, Math.PI * 3, adJustedX);
-  }
+  let angle = lerp(-Math.PI, Math.PI * 2 * loopCount - Math.PI, adJustedX);
 
   const velocity = lerp(-vInterval, vInterval, adjustedY);
   const acceleration =
@@ -118,14 +107,13 @@ function lerp(start: number, end: number, t: number): number {
 }
 
 const calculateRowsAndColumns = (canvas: HTMLCanvasElement) => {
-  const isLarge = isLargeCanvas(canvas);
-  const aspectRatio = canvas.clientWidth / canvas.clientHeight;
-  const count = isLarge ? 600 : 390;
+  const aspectRatio = calcCanvasAspectRatio(canvas);
+  const loopCount = calculateAngleLoopCount(canvas);
+  const count = 350 * loopCount + 50 * aspectRatio;
 
   let columns = Math.floor(Math.sqrt(count * aspectRatio));
   let rows = Math.floor(count / columns);
 
-  // Ensure rows * columns does not exceed 400
   while (rows * columns > count) {
     if (columns > rows) {
       columns--; // Decrease columns if more than rows

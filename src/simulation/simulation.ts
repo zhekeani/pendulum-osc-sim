@@ -12,18 +12,20 @@ import {
   StateShaderUniforms,
 } from "../fbo/shaders/types";
 import { frameBufferState } from "../fbo/states";
+import { generateBackground } from "./background/background";
 import { config } from "./config";
 import { initFramebuffers } from "./framebuffers";
 import { InputManager } from "./input/inputManager";
 import { createPendulumVisualization } from "./pendulum-visualization/pendulum";
 import { step } from "./step";
-import { calcDeltaTime, isLargeCanvas } from "./utils";
+import { calcDeltaTime, calculateAngleLoopCount } from "./utils";
 import { updateVectorField } from "./vectorField";
 
 export const update = (
   gl: WebGL2RenderingContext,
   ext: WebGLExtensions,
   canvas: HTMLCanvasElement,
+  background: HTMLDivElement,
   programs: SimPrograms,
   inputManager: InputManager
 ) => {
@@ -33,13 +35,15 @@ export const update = (
   }
 
   if (resizeCanvas(canvas)) {
-    resizeCanvas(canvas);
+    generateBackground(background, canvas);
+
     reset(
       gl,
       programs.pointProgram,
       programs.pointMovementProgram,
       inputManager
     );
+
     initFramebuffers(gl, ext, programs.copyProgram);
     updateOscillationStates(gl, canvas, programs.stateProgram);
     calculateOscillationDerivative(gl, programs.derivativeProgram);
@@ -52,7 +56,9 @@ export const update = (
   render(gl, programs.displayProgram);
   createPendulumVisualization(inputManager, canvas);
 
-  requestAnimationFrame(() => update(gl, ext, canvas, programs, inputManager));
+  requestAnimationFrame(() =>
+    update(gl, ext, canvas, background, programs, inputManager)
+  );
 };
 
 const updateInitialState = (
@@ -66,7 +72,6 @@ const updateInitialState = (
   if (oscillationPoint) {
     const { x, y } = inputManager.getTexCoord();
     const aspectRatio = canvas.clientWidth / canvas.clientHeight;
-    // console.log(x, y);
 
     pointProgram.bind();
 
@@ -79,7 +84,6 @@ const updateInitialState = (
     gl.uniform2f(pointProgram.uniforms.pCoord, x, y);
     gl.uniform1f(pointProgram.uniforms.radiusPx, 5.0);
 
-    // Render the point (circle) to the framebuffer
     blit(gl, oscillationPoint.write, true);
     oscillationPoint.swap();
   }
@@ -179,6 +183,7 @@ export const calculateOscillationDerivative = (
       derivativeProgram.uniforms.stateTexture,
       oscillationState.read.attach(0)
     );
+    gl.uniform1f(derivativeProgram.uniforms.mu, config.AIR_RESISTANCE_COEF);
     gl.uniform1f(derivativeProgram.uniforms.L, config.PENDULUM_LENGTH);
     gl.uniform1f(derivativeProgram.uniforms.g, config.GRAVITY);
     blit(gl, oscillationDerivative.write);
@@ -195,24 +200,26 @@ export const updateOscillationStates = (
 
   if (oscillationState) {
     const vInterval = calculateVelocityInterval(canvas);
-    const isLarge = isLargeCanvas(canvas);
+    const loopCount = calculateAngleLoopCount(canvas);
+    console.log(loopCount);
+    const aspectRatio = canvas.clientWidth / canvas.clientHeight;
 
     stateProgram.bind();
 
     gl.uniform1f(stateProgram.uniforms.maxY, vInterval);
-    gl.uniform1i(stateProgram.uniforms.isLarge, isLarge ? 1 : 0);
+    gl.uniform1f(stateProgram.uniforms.aspectRatio, aspectRatio);
+    gl.uniform1f(stateProgram.uniforms.loopCount, loopCount);
     blit(gl, oscillationState.write);
     oscillationState.swap();
   }
 };
 
 export const calculateVelocityInterval = (canvas: HTMLCanvasElement) => {
-  const isLarge = isLargeCanvas(canvas);
+  const loopCount = calculateAngleLoopCount(canvas);
 
   let aspectRatio = canvas.clientWidth / canvas.clientHeight;
-  if (isLarge) aspectRatio /= 2;
   const vIntervalOri = 3.2;
-  const vInterval = vIntervalOri / aspectRatio;
+  const vInterval = (vIntervalOri / aspectRatio) * loopCount;
 
   return vInterval;
 };
